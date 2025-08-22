@@ -1,5 +1,8 @@
 #pragma once
 
+#include <mutex>
+#include <atomic>
+
 using int8		= signed	char;
 using int16		= signed	short;
 using int32		= signed	int;
@@ -8,3 +11,9 @@ using uint8		= unsigned	char;
 using uint16	= unsigned	short;
 using uint32	= unsigned	int;
 using uint64	= unsigned	long long;
+
+using Mutex = std::mutex;
+using LockGuard = std::lock_guard<std::mutex>;
+
+template<typename T>
+using Atomic = std::atomic<T>;
