@@ -33,6 +33,12 @@
     <ClInclude Include="ManagerInitializer.h">
       <Filter>Main</Filter>
     </ClInclude>
+    <ClInclude Include="Lock.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="DeadlockDetector.h">
+      <Filter>Thread</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp">
@@ -49,6 +55,12 @@
     </ClCompile>
     <ClCompile Include="ManagerInitializer.cpp">
       <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Lock.cpp">
+      <Filter>Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="DeadlockDetector.cpp">
+      <Filter>Thread</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

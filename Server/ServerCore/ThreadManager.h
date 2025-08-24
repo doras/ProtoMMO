@@ -5,6 +5,8 @@
 
 class ThreadManager
 {
+	USE_LOCK(LockLevelInternal::ThreadManager);
+
 public:
 	ThreadManager();
 	~ThreadManager();
@@ -16,7 +18,6 @@ public:
 	static void DestroyTLS();
 
 private:
-	Mutex						_lock;
 	std::vector<std::thread>	_threads;
 };
 

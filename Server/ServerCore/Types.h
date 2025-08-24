@@ -12,8 +12,5 @@ using uint16	= unsigned	short;
 using uint32	= unsigned	int;
 using uint64	= unsigned	long long;
 
-using Mutex = std::mutex;
-using LockGuard = std::lock_guard<std::mutex>;
-
 template<typename T>
 using Atomic = std::atomic<T>;
