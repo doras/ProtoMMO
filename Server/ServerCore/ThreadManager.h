@@ -3,6 +3,8 @@
 #include <thread>
 #include <functional>
 
+#include "Lock.h"
+
 class ThreadManager
 {
 	USE_LOCK(LockLevelInternal::ThreadManager);
