@@ -8,6 +8,19 @@
 #define READ_LOCK			ReadLockGuard readLockGuard(_lock);
 #define WRITE_LOCK			WriteLockGuard writeLockGuard(_lock);
 
+#ifdef _DEBUG
+#define ENABLE_DEADLOCK_DETECTION
+#endif // _DEBUG
+
+/*-----------
+	MEMORY
+------------*/
+#ifdef _DEBUG
+#define DEFAULT_ALLOCATOR normalAllocator
+#else
+#define DEFAULT_ALLOCATOR normalAllocator
+#endif // _DEBUG
+
 /*-----------
 	CRASH
 -----------*/
