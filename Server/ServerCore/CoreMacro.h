@@ -17,6 +17,7 @@
 ------------*/
 #ifdef _DEBUG
 #define DEFAULT_ALLOCATOR normalAllocator
+//#define DEFAULT_ALLOCATOR stompAllocator
 #else
 #define DEFAULT_ALLOCATOR normalAllocator
 #endif // _DEBUG

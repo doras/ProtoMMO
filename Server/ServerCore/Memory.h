@@ -8,6 +8,7 @@ public:
 	MemoryManager() = default;
 
 	NormalAllocator normalAllocator;
+	StompAllocator stompAllocator;
 
 	IAllocator& defaultAllocator = DEFAULT_ALLOCATOR;
 };
