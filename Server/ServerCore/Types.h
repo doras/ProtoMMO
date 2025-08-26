@@ -1,6 +1,5 @@
 #pragma once
 
-#include <mutex>
 #include <atomic>
 
 using int8		= signed	char;

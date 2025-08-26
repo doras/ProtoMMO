@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Allocator.h" />
+    <ClInclude Include="Container.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="CoreMacro.h" />
     <ClInclude Include="CoreTLS.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="Memory.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="RefCounting.h" />
+    <ClInclude Include="STLAllocator.h" />
     <ClInclude Include="ThreadManager.h" />
     <ClInclude Include="Types.h" />
   </ItemGroup>
@@ -175,6 +177,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="RefCounting.cpp" />
+    <ClCompile Include="STLAllocator.cpp" />
     <ClCompile Include="ThreadManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
