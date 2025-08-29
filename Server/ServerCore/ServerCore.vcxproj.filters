@@ -66,6 +66,9 @@
     <ClInclude Include="AllocatorManager.h">
       <Filter>Memory</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectPool.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp">
