@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "Allocator.h"
 #include "PoolAllocator.h"
 
