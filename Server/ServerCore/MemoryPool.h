@@ -1,9 +1,6 @@
 #pragma once
 
-enum
-{
-	SLIST_ALIGNMENT = 16
-};
+constexpr size_t SLIST_ALIGNMENT = 16;
 
 struct alignas(SLIST_ALIGNMENT) MemoryHeader : public SLIST_ENTRY
 {

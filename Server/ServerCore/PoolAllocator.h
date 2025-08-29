@@ -3,11 +3,8 @@
 class PoolAllocator
 {
 private:
-	enum
-	{
-		MAX_BLOCK_SIZE = 4096,
-		NUM_POOLS = 8,
-	};
+	static constexpr int32 MAX_BLOCK_SIZE = 4096;
+	static constexpr int32 NUM_POOLS = 8;
 
 	static int32 sPoolSizes[NUM_POOLS];
 	static int32 sLookupTable[MAX_BLOCK_SIZE + 1];
