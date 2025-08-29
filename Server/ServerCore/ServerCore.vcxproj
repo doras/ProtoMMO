@@ -163,6 +163,7 @@
     <ClInclude Include="RefCounting.h" />
     <ClInclude Include="STLAllocator.h" />
     <ClInclude Include="ThreadManager.h" />
+    <ClInclude Include="TypeCast.h" />
     <ClInclude Include="Types.h" />
   </ItemGroup>
   <ItemGroup>
