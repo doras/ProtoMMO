@@ -148,6 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Allocator.h" />
+    <ClInclude Include="AllocatorManager.h" />
     <ClInclude Include="Container.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="CoreMacro.h" />
@@ -156,7 +157,9 @@
     <ClInclude Include="Lock.h" />
     <ClInclude Include="ManagerInitializer.h" />
     <ClInclude Include="Memory.h" />
+    <ClInclude Include="MemoryPool.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PoolAllocator.h" />
     <ClInclude Include="RefCounting.h" />
     <ClInclude Include="STLAllocator.h" />
     <ClInclude Include="ThreadManager.h" />
@@ -164,18 +167,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Allocator.cpp" />
+    <ClCompile Include="AllocatorManager.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="CoreTLS.cpp" />
     <ClCompile Include="DeadlockDetector.cpp" />
     <ClCompile Include="Lock.cpp" />
     <ClCompile Include="ManagerInitializer.cpp" />
     <ClCompile Include="Memory.cpp" />
+    <ClCompile Include="MemoryPool.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="PoolAllocator.cpp" />
     <ClCompile Include="RefCounting.cpp" />
     <ClCompile Include="STLAllocator.cpp" />
     <ClCompile Include="ThreadManager.cpp" />

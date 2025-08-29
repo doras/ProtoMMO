@@ -57,6 +57,15 @@
     <ClInclude Include="Container.h">
       <Filter>Memory</Filter>
     </ClInclude>
+    <ClInclude Include="MemoryPool.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="PoolAllocator.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="AllocatorManager.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Core.cpp">
@@ -90,6 +99,15 @@
       <Filter>Memory</Filter>
     </ClCompile>
     <ClCompile Include="STLAllocator.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="MemoryPool.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="PoolAllocator.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="AllocatorManager.cpp">
       <Filter>Memory</Filter>
     </ClCompile>
   </ItemGroup>
