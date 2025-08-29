@@ -1,10 +1,10 @@
 #include "pch.h"
 #include "ManagerInitializer.h"
 #include "ThreadManager.h"
-#include "AllocatorManager.h"
+#include "PoolAllocator.h"
 
 ThreadManager* GThreadManager = nullptr;
-AllocatorManager* GAllocatorManager = nullptr;
+PoolAllocator* GPoolAllocator = nullptr;
 
 class ManagerInitializer
 {
@@ -15,18 +15,18 @@ public:
 		{
 			GThreadManager = new ThreadManager();
 		}
-		if (!GAllocatorManager)
+		if (!GPoolAllocator)
 		{
-			GAllocatorManager = new AllocatorManager();
+			GPoolAllocator = new PoolAllocator();
 		}
 	}
 
 	~ManagerInitializer()
 	{
-		if (GAllocatorManager)
+		if (GPoolAllocator)
 		{
-			delete GAllocatorManager;
-			GAllocatorManager = nullptr;
+			delete GPoolAllocator;
+			GPoolAllocator = nullptr;
 		}
 		if (GThreadManager)
 		{

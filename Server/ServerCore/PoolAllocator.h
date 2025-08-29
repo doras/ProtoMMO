@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Allocator.h"
-
-class PoolAllocator : public IAllocator
+class PoolAllocator
 {
 private:
 	enum
@@ -18,8 +16,8 @@ public:
 	PoolAllocator();
 	~PoolAllocator();
 
-	virtual void* Allocate(size_t size) override;
-	virtual void  Deallocate(void* ptr) override;
+	static void* Allocate(PoolAllocator* allocator, size_t size);
+	static void  Deallocate(PoolAllocator* allocator, void* ptr);
 
 private:
 	std::vector<class MemoryPool*> _pools;

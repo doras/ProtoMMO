@@ -32,9 +32,9 @@ PoolAllocator::~PoolAllocator()
 	_pools.clear();
 }
 
-void* PoolAllocator::Allocate(size_t size)
+void* PoolAllocator::Allocate(PoolAllocator* allocator, size_t size)
 {
-	if (size == 0)
+	if (allocator == nullptr || size == 0)
 	{
 		return nullptr;
 	}
@@ -52,15 +52,15 @@ void* PoolAllocator::Allocate(size_t size)
 #pragma warning(disable: 6305) // Suppress C6305 for this block
         int32 poolIndex = sLookupTable[allocSize];
 #pragma warning(pop)
-        header = _pools[poolIndex]->Pop();
+        header = allocator->_pools[poolIndex]->Pop();
 	}
 
 	return MemoryHeader::AttachHeader(header, allocSize);
 }
 
-void PoolAllocator::Deallocate(void* ptr)
+void PoolAllocator::Deallocate(PoolAllocator* allocator, void* ptr)
 {
-	if (ptr == nullptr)
+	if (allocator == nullptr || ptr == nullptr)
 	{
 		return;
 	}
@@ -77,6 +77,6 @@ void PoolAllocator::Deallocate(void* ptr)
 	else
 	{
 		const int32 poolIndex = sLookupTable[allocSize];
-		_pools[poolIndex]->Push(header);
+		allocator->_pools[poolIndex]->Push(header);
 	}
 }

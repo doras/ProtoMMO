@@ -1,4 +1,4 @@
 #pragma once
 
 extern class ThreadManager* GThreadManager;
-extern class AllocatorManager* GAllocatorManager;
+extern class PoolAllocator* GPoolAllocator;

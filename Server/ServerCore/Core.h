@@ -5,3 +5,4 @@
 #include "CoreMacro.h"
 #include "ManagerInitializer.h"
 #include "Container.h"
+#include "Memory.h"

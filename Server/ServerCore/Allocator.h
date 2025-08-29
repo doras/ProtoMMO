@@ -1,28 +1,19 @@
 #pragma once
 
-class IAllocator
+class NormalAllocator
 {
 public:
-	virtual void* Allocate(size_t size) = 0;
-	virtual void  Deallocate(void* ptr) = 0;
-
-	virtual ~IAllocator() = default;
+	static void* Allocate(NormalAllocator*, size_t size);
+	static void  Deallocate(NormalAllocator*, void* ptr);
 };
 
-class NormalAllocator : public IAllocator
-{
-public:
-	virtual void* Allocate(size_t size) override;
-	virtual void  Deallocate(void* ptr) override;
-};
-
-class StompAllocator : public IAllocator
+class StompAllocator
 {
 public:
 	StompAllocator();
 
-	virtual void* Allocate(size_t size) override;
-	virtual void  Deallocate(void* ptr) override;
+	static void* Allocate(StompAllocator* allocator, size_t size);
+	static void  Deallocate(StompAllocator* allocator, void* ptr);
 
 private:
 	size_t _pageSize = 0;

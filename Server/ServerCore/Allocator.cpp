@@ -1,12 +1,12 @@
 #include "pch.h"
 #include "Allocator.h"
 
-void* NormalAllocator::Allocate(size_t size)
+void* NormalAllocator::Allocate(NormalAllocator*, size_t size)
 {
 	return ::malloc(size);
 }
 
-void NormalAllocator::Deallocate(void* ptr)
+void NormalAllocator::Deallocate(NormalAllocator*, void* ptr)
 {
 	::free(ptr);
 }
@@ -18,29 +18,34 @@ StompAllocator::StompAllocator()
 	_pageSize = sysInfo.dwPageSize;
 }
 
-void* StompAllocator::Allocate(size_t size)
+void* StompAllocator::Allocate(StompAllocator* allocator, size_t size)
 {
-	size_t allocSize = ((size + _pageSize - 1) / _pageSize) * _pageSize;
-	void* baseAddr = ::VirtualAlloc(nullptr, allocSize + _pageSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	if (allocator == nullptr || size == 0)
+	{
+		return nullptr;
+	}
+
+	size_t allocSize = ((size + allocator->_pageSize - 1) / allocator->_pageSize) * allocator->_pageSize;
+	void* baseAddr = ::VirtualAlloc(nullptr, allocSize + allocator->_pageSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 	if (!baseAddr)
 	{
 		return nullptr;
 	}
 
 	DWORD oldProtect;
-	::VirtualProtect(static_cast<int8*>(baseAddr) + _pageSize, _pageSize, PAGE_NOACCESS, &oldProtect);
+	::VirtualProtect(static_cast<int8*>(baseAddr) + allocator->_pageSize, allocator->_pageSize, PAGE_NOACCESS, &oldProtect);
 
 	return static_cast<int8*>(baseAddr) + (allocSize - size);
 }
 
-void StompAllocator::Deallocate(void* ptr)
+void StompAllocator::Deallocate(StompAllocator* allocator, void* ptr)
 {
-	if (!ptr)
+	if (allocator == nullptr || ptr == nullptr)
 	{
 		return;
 	}
 	
 	size_t address = reinterpret_cast<size_t>(ptr);
-	size_t baseAddr = address - (address % _pageSize);
+	size_t baseAddr = address - (address % allocator->_pageSize);
 	::VirtualFree(reinterpret_cast<void*>(baseAddr), 0, MEM_RELEASE);
 }

@@ -9,17 +9,20 @@
 #define WRITE_LOCK			WriteLockGuard writeLockGuard(_lock);
 
 #ifdef _DEBUG
-#define ENABLE_DEADLOCK_DETECTION
+	#define ENABLE_DEADLOCK_DETECTION
 #endif // _DEBUG
 
 /*-----------
 	MEMORY
 ------------*/
 #ifdef _DEBUG
-#define DEFAULT_ALLOCATOR poolAllocator
-//#define DEFAULT_ALLOCATOR stompAllocator
+	#define DEFAULT_ALLOCATOR PoolAllocator
+	#define DEFAULT_ALLOCATOR_OBJECT GPoolAllocator
+	//#define DEFAULT_ALLOCATOR NormalAllocator
+	//#define DEFAULT_ALLOCATOR_OBJECT nullptr
 #else
-#define DEFAULT_ALLOCATOR poolAllocator
+	#define DEFAULT_ALLOCATOR PoolAllocator
+	#define DEFAULT_ALLOCATOR_OBJECT GPoolAllocator
 #endif // _DEBUG
 
 /*-----------

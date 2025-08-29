@@ -16,11 +16,11 @@ public:
 	T* allocate(size_t n)
 	{
 		size_t size = n * sizeof(T);
-		return static_cast<T*>(GAllocatorManager->defaultAllocator->Allocate(size));
+		return static_cast<T*>(DEFAULT_ALLOCATOR::Allocate(DEFAULT_ALLOCATOR_OBJECT, size));
 	}
 
 	void deallocate(T* ptr, size_t)
 	{
-		GAllocatorManager->defaultAllocator->Deallocate(ptr);
+		DEFAULT_ALLOCATOR::Deallocate(DEFAULT_ALLOCATOR_OBJECT, ptr);
 	}
 };
