@@ -2,6 +2,7 @@
 #include "ManagerInitializer.h"
 #include "ThreadManager.h"
 #include "PoolAllocator.h"
+#include "SocketUtils.h"
 
 ThreadManager* GThreadManager = nullptr;
 PoolAllocator* GPoolAllocator = nullptr;
@@ -19,10 +20,12 @@ public:
 		{
 			GPoolAllocator = new PoolAllocator();
 		}
+		SocketUtils::Init();
 	}
 
 	~ManagerInitializer()
 	{
+		SocketUtils::Cleanup();
 		if (GPoolAllocator)
 		{
 			delete GPoolAllocator;
