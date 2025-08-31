@@ -3,6 +3,7 @@
 #include <memory>
 #include "Allocator.h"
 #include "PoolAllocator.h"
+#include "RefCounting.h"
 
 /*-----------------
 	New & Delete
@@ -22,12 +23,12 @@ T* CoreNew(Args&&... args)
 }
 
 template<typename T, typename Allocator>
-void CoreDelete(Allocator* allocator, T* ptr)
+void CoreDelete(void* allocator, T* ptr)
 {
 	if (ptr)
 	{
 		ptr->~T();
-		Allocator::Deallocate(allocator, ptr);
+		Allocator::Deallocate(reinterpret_cast<Allocator*>(allocator), ptr);
 	}
 }
 
@@ -50,6 +51,22 @@ struct Deleter
 		CoreDelete<T, Allocator>(allocator, ptr);
 	}
 };
+
+template<typename T, typename Allocator,  typename... Args>
+auto MakeIntrusive(Allocator* allocator, Args&&... args)
+{
+	return IntrusivePtr<T>(
+		CoreNew<T, Allocator>(allocator, std::forward<Args>(args)...),
+		CoreDelete<T, Allocator>,
+		allocator
+	);
+}
+
+template<typename T, typename... Args>
+auto MakeIntrusive(Args&&... args)
+{
+	return MakeIntrusive<T, DEFAULT_ALLOCATOR>(DEFAULT_ALLOCATOR_OBJECT, std::forward<Args>(args)...);
+}
 
 template<typename T, typename Allocator, typename... Args>
 std::unique_ptr<T, Deleter<T, Allocator>> MakeUnique(Allocator* allocator, Args&&... args)

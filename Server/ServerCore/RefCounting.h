@@ -5,17 +5,12 @@ class RefCounted
 public:
 	int32 AddRef()
 	{
-		return ++_refCount;
+		return _refCount.fetch_add(1) + 1;
 	}
 
 	int32 ReleaseRef()
 	{
-		int32 refCount = --_refCount;
-		if (refCount == 0)
-		{
-			delete this;
-		}
-		return refCount;
+		return _refCount.fetch_sub(1) - 1;
 	}
 
 protected:
@@ -26,19 +21,29 @@ private:
 	Atomic<int32> _refCount;
 };
 
+
+
 template<typename T>
 class IntrusivePtr
 {
 	static_assert(std::is_base_of<RefCounted, T>::value, "T must be derived from RefCounted");
-public:
-	IntrusivePtr() {}
-	IntrusivePtr(T* ptr) { Set(ptr); }
 
-	IntrusivePtr(const IntrusivePtr& other) { Set(other._ptr); }
-	IntrusivePtr(IntrusivePtr&& other) noexcept : _ptr(other._ptr) { other._ptr = nullptr; }
+	using DeleterType = void(*)(void*,T*);
+
+	static void DefaultDeleter(void*, T* ptr)
+	{
+		delete ptr;
+	}
+public:
+	IntrusivePtr() = default;
+	IntrusivePtr(T* ptr) : _ptr(nullptr), _deleter(DefaultDeleter) { Set(ptr); }
+	IntrusivePtr(T* ptr, DeleterType deleter, void* allocator) : _ptr(nullptr), _deleter(std::move(deleter)), _allocator(allocator) { Set(ptr); }
+
+	IntrusivePtr(const IntrusivePtr& other) : _ptr(nullptr), _deleter(other._deleter), _allocator(other._allocator) { Set(other._ptr); }
+	IntrusivePtr(IntrusivePtr&& other) noexcept : _ptr(other._ptr), _deleter(std::move(other._deleter)), _allocator(other._allocator) { other._ptr = nullptr; }
 
 	template<typename U>
-	IntrusivePtr(const IntrusivePtr<U>& other) { Set(static_cast<T*>(other._ptr)); }
+	IntrusivePtr(const IntrusivePtr<U>& other) : _ptr(nullptr), _deleter(other._deleter), _allocator(other._allocator) { Set(static_cast<T*>(other._ptr)); }
 
 	~IntrusivePtr() { Reset(); }
 
@@ -48,6 +53,8 @@ public:
 		if (*this != other)
 		{
 			Reset();
+			_deleter = other._deleter;
+			_allocator = other._allocator;
 			Set(other._ptr);
 		}
 		return *this;
@@ -57,6 +64,8 @@ public:
 	{
 		Reset();
 		_ptr = other._ptr;
+		_deleter = std::move(other._deleter);
+		_allocator = other._allocator;
 		other._ptr = nullptr;
 		return *this;
 	}
@@ -88,19 +97,20 @@ private:
 
 	void Reset()
 	{
-		if (_ptr)
+		if (_ptr == nullptr)
 		{
-			_ptr->ReleaseRef();
-			_ptr = nullptr;
+			return;
 		}
+
+		if (_ptr->ReleaseRef() == 0)
+		{
+			_deleter(_allocator, _ptr);
+		}
+		_ptr = nullptr;
 	}
 
 private:
 	T* _ptr = nullptr;
+	DeleterType _deleter = nullptr;
+	void* _allocator = nullptr;
 };
-
-template<typename T, typename... Args>
-IntrusivePtr<T> MakeIntrusive(Args&&... args)
-{
-	return IntrusivePtr<T>(new T(std::forward<Args>(args)...));
-}

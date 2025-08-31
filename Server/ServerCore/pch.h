@@ -11,3 +11,4 @@
 #include "ManagerInitializer.h"
 #include "Lock.h"
 #include "Container.h"
+#include "RefCounting.h"
