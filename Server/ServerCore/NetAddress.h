@@ -10,9 +10,10 @@ public:
 	NetAddress(SOCKADDR_IN sockAddr) : _sockAddr(sockAddr) {}
 	NetAddress(const String& ip, uint16 port);
 
-	SOCKADDR_IN&	GetSockAddr() { return _sockAddr; }
-	String			GetIP() const;
-	uint16			GetPort() const { return ::ntohs(_sockAddr.sin_port); }
+	const SOCKADDR_IN&	GetSockAddr() const { return _sockAddr; }
+	SOCKADDR_IN&		GetSockAddr() { return _sockAddr; }
+	String				GetIP() const;
+	uint16				GetPort() const { return ::ntohs(_sockAddr.sin_port); }
 
 public:
 	static IN_ADDR IP2Addr(const wchar_t* ip);

@@ -18,7 +18,7 @@ public:
 	static SOCKET	CreateSocket();
 	static void		CloseSocket(SOCKET& socket);
 
-	static bool		Bind(SOCKET socket, class NetAddress netAddr);
+	static bool		Bind(SOCKET socket, const class NetAddress& netAddr);
 	static bool		BindAnyAddr(SOCKET socket, uint16 port);
 	static bool		Listen(SOCKET socket, int32 backlog = SOMAXCONN);
 
@@ -28,6 +28,8 @@ public:
 	static bool		SetSendBufferSize(SOCKET socket, int32 size);
 	static bool		SetTcpNoDelay(SOCKET socket, bool flag);
 	static bool		SetUpdateAcceptContext(SOCKET socket, SOCKET listenSocket);
+
+	static bool		GetPeerName(SOCKET socket, class NetAddress& outAddr);
 };
 
 template<typename T>

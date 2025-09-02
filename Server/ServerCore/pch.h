@@ -4,6 +4,7 @@
 
 #include <thread>
 #include <Windows.h>
+#include <memory>
 
 #include "Types.h"
 

@@ -13,3 +13,7 @@ using uint64	= unsigned	long long;
 
 template<typename T>
 using Atomic = std::atomic<T>;
+
+using IIoHandlerPtr = std::shared_ptr<class IIoHandler>;
+using ListenerPtr = std::shared_ptr<class Listener>;
+using SessionPtr = std::shared_ptr<class Session>;

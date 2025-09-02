@@ -5,21 +5,23 @@
 
 #include <iostream>
 
+#include "Listener.h"
+#include "IocpCore.h"
+
 int main()
 {
-	SOCKET socket = SocketUtils::CreateSocket();
+	ListenerPtr listener = MakeShared<Listener>();
+	listener->Start({ L"127.0.0.1", 7777 });
 
-	SocketUtils::BindAnyAddr(socket, 7777);
-
-	SocketUtils::Listen(socket);
-
-	SOCKET clientSocket = ::accept(socket, nullptr, nullptr);
-
-	std::cout << "Client connected." << std::endl;
-
-	while (true)
+	for (int32 i = 0; i < 4; ++i)
 	{
-
+		GThreadManager->Launch([]()
+		{
+			while (true)
+			{
+				GIocpCore.PollAndDispatch();
+			}
+		});
 	}
 
 	GThreadManager->Join();

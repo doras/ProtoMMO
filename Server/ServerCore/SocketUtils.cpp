@@ -51,7 +51,7 @@ void SocketUtils::CloseSocket(SOCKET& socket)
 	}
 }
 
-bool SocketUtils::Bind(SOCKET socket, NetAddress netAddr)
+bool SocketUtils::Bind(SOCKET socket, const NetAddress& netAddr)
 {
 	if (socket == INVALID_SOCKET)
 	{
@@ -144,4 +144,17 @@ bool SocketUtils::SetUpdateAcceptContext(SOCKET socket, SOCKET listenSocket)
 		return false;
 	}
 	return SetSockOpt(socket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, listenSocket);
+}
+
+bool SocketUtils::GetPeerName(SOCKET socket, NetAddress& outAddr)
+{
+	SOCKADDR_IN sockAddr = {};
+	int32 addrLen = sizeof(sockAddr);
+	if (::getpeername(socket, reinterpret_cast<SOCKADDR*>(&sockAddr), &addrLen) == SOCKET_ERROR)
+	{
+		return false;
+	}
+
+	outAddr = NetAddress(sockAddr);
+	return true;
 }
