@@ -5,9 +5,6 @@
 
 #include "WinSock2.h"
 
-// TEMP
-IocpCore GIocpCore;
-
 IocpCore::IocpCore()
 {
 	_iocpHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
@@ -21,6 +18,10 @@ IocpCore::~IocpCore()
 
 bool IocpCore::Associate(IIoHandlerPtr handler) const
 {
+	if (handler == nullptr || handler->GetHandle() == INVALID_HANDLE_VALUE)
+	{
+		return false;
+	}
 	return ::CreateIoCompletionPort(handler->GetHandle(), _iocpHandle, 0, 0) != NULL;
 }
 

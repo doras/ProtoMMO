@@ -1,6 +1,6 @@
 #pragma once
 
-class IocpCore
+class IocpCore : public std::enable_shared_from_this<IocpCore>
 {
 public:
 	IocpCore();
@@ -15,6 +15,3 @@ public:
 private:
 	HANDLE _iocpHandle;
 };
-
-//TEMP
-extern IocpCore GIocpCore;

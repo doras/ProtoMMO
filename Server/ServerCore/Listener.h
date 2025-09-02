@@ -11,7 +11,7 @@ public:
 	Listener() = default;
 	~Listener();
 
-	bool Start(const NetAddress& address);
+	bool Start(ServerServicePtr service);
 	void CloseSocket();
 
 	virtual void OnIoCompleted(class OverlappedBase* overlapped, uint32 numOfBytes) override;
@@ -24,5 +24,6 @@ private:
 	using AcceptOverlappedUniquePtr = std::unique_ptr<AcceptOverlapped, Deleter<AcceptOverlapped, DEFAULT_ALLOCATOR>>;
 	SOCKET _socket = INVALID_SOCKET;
 	Vector<AcceptOverlappedUniquePtr> _acceptOverlappeds;
+	std::weak_ptr<ServerService> _service;
 };
 

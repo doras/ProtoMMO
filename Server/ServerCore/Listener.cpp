@@ -4,48 +4,41 @@
 #include "IocpCore.h"
 #include "Overlapped.h"
 #include "Session.h"
+#include "Service.h"
 
 Listener::~Listener()
 {
 	CloseSocket();
 }
 
-bool Listener::Start(const NetAddress& address)
+bool Listener::Start(ServerServicePtr service)
 {
+	if (service == nullptr)
+		return false;
+	_service = service;
+
 	_socket = SocketUtils::CreateSocket();
 	if (_socket == INVALID_SOCKET)
-	{
 		return false;
-	}
 
-	if (GIocpCore.Associate(shared_from_this()) == false)
-	{
+	if (service->GetIocpCore()->Associate(shared_from_this()) == false)
 		return false;
-	}
 
 	if (SocketUtils::SetReuseAddr(_socket, true) == false)
-	{
 		return false;
-	}
 
 	if (SocketUtils::SetLinger(_socket, false, 0) == false)
-	{
 		return false;
-	}
 
-	if (SocketUtils::Bind(_socket, address) == false)
-	{
+	if (SocketUtils::Bind(_socket, service->GetAddress()) == false)
 		return false;
-	}
 
 	if (SocketUtils::Listen(_socket) == false)
-	{
 		return false;
-	}
 
 	// Pre-post AcceptEx
 	// Post multiple AcceptEx to improve performance
-	const int32 prePostCount = 5;
+	const int32 prePostCount = service->GetMaxSessionCount();
 	for (int32 i = 0; i < prePostCount; ++i)
 	{
 		AcceptOverlappedUniquePtr overlapped = MakeUnique<AcceptOverlapped>();
@@ -54,7 +47,7 @@ bool Listener::Start(const NetAddress& address)
 		_acceptOverlappeds.push_back(std::move(overlapped));
 	}
 
-	return false;
+	return true;
 }
 
 void Listener::CloseSocket()
@@ -78,7 +71,11 @@ HANDLE Listener::GetHandle() const
 
 void Listener::PostAccept(AcceptOverlapped* overlapped)
 {
-	SessionPtr session = MakeShared<Session>();
+	ServerServicePtr service = _service.lock();
+	if (service == nullptr)
+		return;
+
+	SessionPtr session = service->CreateSession();
 
 	overlapped->Init();
 	overlapped->session = session;

@@ -3,6 +3,7 @@
 enum class LockLevelInternal : uint8
 {
 	ThreadManager = 1,
+	Service = 2,
 };
 
 class Lock
