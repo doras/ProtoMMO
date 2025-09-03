@@ -8,6 +8,7 @@ public:
 	enum class IOType : uint8
 	{
 		Connect,
+		Disconnect,
 		Accept,
 
 		Recv,
@@ -30,6 +31,12 @@ public:
 	ConnectOverlapped() : OverlappedBase(IOType::Connect) {}
 };
 
+class DisconnectOverlapped : public OverlappedBase
+{
+public:
+	DisconnectOverlapped() : OverlappedBase(IOType::Disconnect) {}
+};
+
 class AcceptOverlapped : public OverlappedBase
 {
 public:
@@ -49,4 +56,7 @@ class SendOverlapped : public OverlappedBase
 {
 public:
 	SendOverlapped() : OverlappedBase(IOType::Send) {}
+
+public:
+	Vector<BYTE> buffer; // TEMP
 };

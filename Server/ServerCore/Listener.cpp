@@ -58,9 +58,17 @@ void Listener::CloseSocket()
 	}
 }
 
-void Listener::OnIoCompleted(OverlappedBase* overlapped, uint32 numOfBytes)
+void Listener::OnIoCompleted(OverlappedBase* overlapped, uint32 numOfBytes, int32 errorCode)
 {
 	ASSERT_CRASH(overlapped->type == OverlappedBase::IOType::Accept, "Invalid overlapped type");
+
+	// If error, just ignore and post another AcceptEx
+	if (errorCode != 0)
+	{
+		PostAccept(static_cast<AcceptOverlapped*>(overlapped));
+		return;
+	}
+
 	ProcessAccept(static_cast<AcceptOverlapped*>(overlapped));
 }
 
@@ -101,7 +109,6 @@ void Listener::PostAccept(AcceptOverlapped* overlapped)
 	}
 }
 
-#include <iostream> // TEMP
 void Listener::ProcessAccept(AcceptOverlapped* overlapped)
 {
 	// Successfully accepted a connection
@@ -121,8 +128,8 @@ void Listener::ProcessAccept(AcceptOverlapped* overlapped)
 	}
 
 	session->SetNetAddress(netAddr);
-	std::wcout << "Accepted connection from " 
-		<< netAddr.GetIP() << ":" << netAddr.GetPort() << std::endl;
+
+	session->ProcessConnect(); // Notify the session that it is connected
 
 	PostAccept(overlapped); // Post another AcceptEx
 }

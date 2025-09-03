@@ -19,4 +19,5 @@ using ListenerPtr = std::shared_ptr<class Listener>;
 using SessionPtr = std::shared_ptr<class Session>;
 using ServicePtr = std::shared_ptr<class Service>;
 using ServerServicePtr = std::shared_ptr<class ServerService>;
+using ClientServicePtr = std::shared_ptr<class ClientService>;
 using IocpCorePtr = std::shared_ptr<class IocpCore>;

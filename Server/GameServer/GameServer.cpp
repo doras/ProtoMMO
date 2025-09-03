@@ -7,8 +7,31 @@
 #include "IocpCore.h"
 
 
+#include <winsock2.h>
+#include <mswsock.h>
+#include <ws2tcpip.h>
+#pragma comment(lib, "ws2_32.lib")
+
+
 class GameSession : public Session
 {
+public:
+	~GameSession()
+	{
+		std::cout << "~GameSession" << std::endl;
+	}
+
+	virtual void OnRecv(BYTE* data, int32 length) override
+	{
+		std::cout << "Received: " << length << std::endl;
+		// Echo back
+		Send(data, length);
+	}
+
+	virtual void OnSend(int32 numOfBytes) override
+	{
+		std::cout << "Sent: " << numOfBytes << std::endl;
+	}
 };
 
 int main()

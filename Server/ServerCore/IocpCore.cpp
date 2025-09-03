@@ -5,6 +5,8 @@
 
 #include "WinSock2.h"
 
+#include <iostream> // TEMP
+
 IocpCore::IocpCore()
 {
 	_iocpHandle = ::CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 0);
@@ -47,16 +49,27 @@ bool IocpCore::PollAndDispatch(uint32 timeoutMs) const
 			return false;
 		}
 
-		owner->OnIoCompleted(overlapped, numOfBytes);
+		owner->OnIoCompleted(overlapped, numOfBytes, 0);
 	}
 	else
 	{
 		int32 err = ::WSAGetLastError();
-		if (err != WAIT_TIMEOUT)
+		if (err == WAIT_TIMEOUT)
 		{
-			// TODO: Log Error
+			return false;
 		}
-		
+
+		// TODO: Log Error
+		std::cout << "GetQueuedCompletionStatus failed. ErrorCode: " << err << std::endl;
+
+		// If needed, send error to the handler
+		if (overlapped != nullptr)
+		{
+			if (IIoHandlerPtr owner = overlapped->owner)
+			{
+				owner->OnIoCompleted(overlapped, numOfBytes, err);
+			}
+		}
 		return false;
 	}
 

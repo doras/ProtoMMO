@@ -14,7 +14,7 @@ public:
 	bool Start(ServerServicePtr service);
 	void CloseSocket();
 
-	virtual void OnIoCompleted(class OverlappedBase* overlapped, uint32 numOfBytes) override;
+	virtual void OnIoCompleted(class OverlappedBase* overlapped, uint32 numOfBytes, int32 errorCode) override;
 	virtual HANDLE GetHandle() const override;
 
 	void PostAccept(AcceptOverlapped* overlapped);
