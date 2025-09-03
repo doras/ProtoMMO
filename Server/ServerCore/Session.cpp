@@ -160,13 +160,18 @@ void Session::PostRecv()
 	_recvOverlapped.Init();
 	_recvOverlapped.owner = shared_from_this(); // IncRef this (to ensure it lives until the IO completes)
 
-	WSABUF wsaBuf;
-	wsaBuf.buf = reinterpret_cast<CHAR*>(_recvBuffer);
-	wsaBuf.len = countof(_recvBuffer);
+	WSABUF wsaBufs[2];
+
+	wsaBufs[0].buf = reinterpret_cast<CHAR*>(_recvBuffer.GetWritePtr());
+	wsaBufs[0].len = _recvBuffer.GetContiguousFreeSize();
+
+	wsaBufs[1].buf = reinterpret_cast<CHAR*>(_recvBuffer.GetBufferPtr());
+	wsaBufs[1].len = _recvBuffer.GetFreeSize() - wsaBufs[0].len;
 	
+	DWORD bufCount = (wsaBufs[1].len > 0 ? 2 : 1);
 	DWORD bytesReceived = 0;
 	DWORD flags = 0;
-	int32 result = ::WSARecv(_socket, &wsaBuf, 1, &bytesReceived, &flags, &_recvOverlapped, nullptr);
+	int32 result = ::WSARecv(_socket, wsaBufs, bufCount, &bytesReceived, &flags, &_recvOverlapped, nullptr);
 	if (result == SOCKET_ERROR)
 	{
 		int32 errorCode = ::WSAGetLastError();
@@ -249,8 +254,23 @@ void Session::ProcessRecv(uint32 numOfBytes)
 		return;
 	}
 
+	if (_recvBuffer.OnWrite(numOfBytes) == false)
+	{
+		Disconnect(L"Recv Buffer Overflow");
+		return;
+	}
+
 	// Notify derived class
-	OnRecv(_recvBuffer, numOfBytes);
+	int32 dataSize = _recvBuffer.GetDataSize();
+	int32 consumedLen = OnRecv(_recvBuffer);
+	if (consumedLen < 0 || consumedLen > dataSize || _recvBuffer.OnRead(consumedLen) == false)
+	{
+		Disconnect(L"Recv Buffer Invalid Read");
+		return;
+	}
+
+	// Clean up the buffer if it's empty for optimization
+	_recvBuffer.CleanIfEmpty();
 
 	// Post another recv
 	PostRecv();

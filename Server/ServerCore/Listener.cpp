@@ -91,7 +91,7 @@ void Listener::PostAccept(AcceptOverlapped* overlapped)
 	BOOL result = SocketUtils::AcceptEx(
 		_socket,
 		session->GetSocket(),
-		session->_recvBuffer, // TEMP
+		session->_recvBuffer.GetWritePtr(),
 		0,
 		sizeof(SOCKADDR_IN) + 16,
 		sizeof(SOCKADDR_IN) + 16,

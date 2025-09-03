@@ -2,11 +2,11 @@
 #include "IoHandler.h"
 #include "NetAddress.h"
 #include "Overlapped.h"
+#include "RecvBuffer.h"
 
 class Session : public IIoHandler
 {
 	USE_LOCK(LockLevelInternal::Session)
-
 
 	enum class ConnectionState : uint8
 	{
@@ -17,6 +17,9 @@ class Session : public IIoHandler
 	};
 
 	friend class Listener;
+
+	static constexpr int32 RECV_BUFFER_SIZE = 0x10000;
+
 public:
 	Session();
 	virtual ~Session();
@@ -56,19 +59,16 @@ protected:
 	/* Override these for custom behavior in derived classes */
 	virtual void OnConnected() {}
 	virtual void OnDisconnected() {}
-	virtual void OnRecv(BYTE* data, int32 length) {}
+	virtual int32 OnRecv(const RecvBuffer& buffer) { return buffer.GetDataSize(); }
 	virtual void OnSend(int32 numOfBytes) {}
 
-public:
-	BYTE _recvBuffer[4096]; // TEMP
-
 private:
-	SOCKET			_socket = INVALID_SOCKET;
-	NetAddress		_netAddress = {};
-
+	SOCKET					_socket = INVALID_SOCKET;
+	NetAddress				_netAddress = {};
 	Atomic<ConnectionState> _connectionState = { ConnectionState::Disconnected };
+	std::weak_ptr<Service>	_service;
 
-	std::weak_ptr<Service> _service;
+	RecvBuffer				_recvBuffer = { RECV_BUFFER_SIZE };
 
 private:
 	/* Reusable overlapped structures for async IO */
