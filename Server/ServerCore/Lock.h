@@ -2,9 +2,12 @@
 
 enum class LockLevelInternal : uint8
 {
-	ThreadManager = 1,
-	Service = 2,
-	Session = 3,
+	None = 0,
+	ThreadManager,
+	Service,
+	GameSessionManager,
+	Session,
+	Max = 99,
 };
 
 class Lock

@@ -12,49 +12,7 @@
 #include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 
-BYTE data[1000];
-
-
-class GameSession : public Session
-{
-public:
-	~GameSession()
-	{
-		std::cout << "~GameSession" << std::endl;
-	}
-
-	virtual int32 OnRecv(const RecvBuffer& buffer) override
-	{
-		int32 length = buffer.GetDataSize();
-		std::cout << "Received: " << length << std::endl;
-
-		const BYTE* dataToRead;
-		if (buffer.CanReadContiguously(length))
-		{
-			dataToRead = buffer.GetReadPtr();
-		}
-		else
-		{
-			int32 contiguousSize = buffer.GetContiguousDataSize();
-			::memcpy(data, buffer.GetReadPtr(), contiguousSize);
-			::memcpy(data + contiguousSize, buffer.GetBufferPtr(), length - contiguousSize);
-			dataToRead = reinterpret_cast<const BYTE*>(data);
-		}
-
-		SendBufferPtr sendBuffer = MakeIntrusive<SendBuffer>(4096);
-		sendBuffer->Write(dataToRead, length);
-
-		// Echo back
-		Send(sendBuffer);
-
-		return length;
-	}
-
-	virtual void OnSend(int32 numOfBytes) override
-	{
-		std::cout << "Sent: " << numOfBytes << std::endl;
-	}
-};
+#include "GameSession.h"
 
 int main()
 {

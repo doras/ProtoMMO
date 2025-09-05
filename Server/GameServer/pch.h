@@ -4,4 +4,7 @@
 
 #include <memory>
 
-#include "Types.h"
+#include "Core.h"
+#include "LockLevel.h"
+
+using GameSessionPtr = std::shared_ptr<class GameSession>;
