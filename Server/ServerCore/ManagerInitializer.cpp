@@ -6,6 +6,7 @@
 
 ThreadManager* GThreadManager = nullptr;
 PoolAllocator* GPoolAllocator = nullptr;
+StompAllocator* GStompAllocator = nullptr;
 
 class ManagerInitializer
 {
@@ -20,12 +21,21 @@ public:
 		{
 			GPoolAllocator = new PoolAllocator();
 		}
+		if (!GStompAllocator)
+		{
+			GStompAllocator = new StompAllocator();
+		}
 		SocketUtils::Init();
 	}
 
 	~ManagerInitializer()
 	{
 		SocketUtils::Cleanup();
+		if (GStompAllocator)
+		{
+			delete GStompAllocator;
+			GStompAllocator = nullptr;
+		}
 		if (GPoolAllocator)
 		{
 			delete GPoolAllocator;

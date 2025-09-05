@@ -42,6 +42,11 @@ void* PoolAllocator::Allocate(PoolAllocator* allocator, size_t size)
 	MemoryHeader* header = nullptr;
 	const int32 allocSize = size + sizeof(MemoryHeader);
 
+#ifdef _STOMP
+	uint64 address = reinterpret_cast<uint64>(StompAllocator::Allocate(GStompAllocator, allocSize));
+	address = address - (address % SLIST_ALIGNMENT);
+	header = reinterpret_cast<MemoryHeader*>(address);
+#else
 	if (allocSize > MAX_BLOCK_SIZE)
 	{
 		header = static_cast<MemoryHeader*>(::_aligned_malloc(allocSize, SLIST_ALIGNMENT));
@@ -54,6 +59,7 @@ void* PoolAllocator::Allocate(PoolAllocator* allocator, size_t size)
 #pragma warning(pop)
         header = allocator->_pools[poolIndex]->Pop();
 	}
+#endif // _STOMP
 
 	return MemoryHeader::AttachHeader(header, allocSize);
 }
@@ -70,6 +76,9 @@ void PoolAllocator::Deallocate(PoolAllocator* allocator, void* ptr)
 
 	ASSERT_CRASH(allocSize > 0);
 
+#ifdef _STOMP
+	StompAllocator::Deallocate(GStompAllocator, header);
+#else
 	if (allocSize > MAX_BLOCK_SIZE)
 	{
 		::_aligned_free(header);
@@ -79,4 +88,5 @@ void PoolAllocator::Deallocate(PoolAllocator* allocator, void* ptr)
 		const int32 poolIndex = sLookupTable[allocSize];
 		allocator->_pools[poolIndex]->Push(header);
 	}
+#endif // _STOMP
 }

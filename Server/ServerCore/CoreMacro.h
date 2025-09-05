@@ -25,6 +25,8 @@
 	#define DEFAULT_ALLOCATOR_OBJECT GPoolAllocator
 #endif // _DEBUG
 
+//#define _STOMP
+
 /*-----------
 	CRASH
 -----------*/
