@@ -58,5 +58,5 @@ public:
 	SendOverlapped() : OverlappedBase(IOType::Send) {}
 
 public:
-	Vector<BYTE> buffer; // TEMP
+	Vector<SendBufferPtr> sendBuffers; // The buffers being sent in this operation
 };

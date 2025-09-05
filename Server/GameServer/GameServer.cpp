@@ -41,8 +41,11 @@ public:
 			dataToRead = reinterpret_cast<const BYTE*>(data);
 		}
 
+		SendBufferPtr sendBuffer = MakeIntrusive<SendBuffer>(4096);
+		sendBuffer->Write(dataToRead, length);
+
 		// Echo back
-		Send(dataToRead, length);
+		Send(sendBuffer);
 
 		return length;
 	}

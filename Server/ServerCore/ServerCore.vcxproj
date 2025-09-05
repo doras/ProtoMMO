@@ -167,6 +167,7 @@
     <ClInclude Include="PoolAllocator.h" />
     <ClInclude Include="RecvBuffer.h" />
     <ClInclude Include="RefCounting.h" />
+    <ClInclude Include="SendBuffer.h" />
     <ClInclude Include="Service.h" />
     <ClInclude Include="Session.h" />
     <ClInclude Include="SocketUtils.h" />
@@ -195,6 +196,7 @@
     </ClCompile>
     <ClCompile Include="PoolAllocator.cpp" />
     <ClCompile Include="RecvBuffer.cpp" />
+    <ClCompile Include="SendBuffer.cpp" />
     <ClCompile Include="Service.cpp" />
     <ClCompile Include="Session.cpp" />
     <ClCompile Include="SocketUtils.cpp" />

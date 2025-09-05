@@ -14,17 +14,31 @@ Session::~Session()
 	SocketUtils::CloseSocket(_socket);
 }
 
-void Session::Send(const BYTE* data, int32 length)
+void Session::Send(SendBufferPtr sendBuffer)
 {
+	if (sendBuffer == nullptr || sendBuffer->GetDataSize() == 0)
+		return;
+
 	if (GetConnectionState() != ConnectionState::Connected)
 		return;
 
-	// TEMP
-	SendOverlapped* sendOverlapped = CoreNew<SendOverlapped>();
-	sendOverlapped->buffer.resize(length);
-	::memcpy(sendOverlapped->buffer.data(), data, length);
+	bool needToPostSend = false;
+	{
+		WRITE_LOCK;
 
-	PostSend(sendOverlapped);
+		_sendQueue.push(sendBuffer);
+
+		if (_isSending == false)
+		{
+			_isSending = true;
+			needToPostSend = true;
+		}
+	}
+
+	if (needToPostSend)
+	{
+		PostSend();
+	}
 }
 
 bool Session::Connect()
@@ -75,7 +89,7 @@ void Session::OnIoCompleted(OverlappedBase* overlapped, uint32 numOfBytes, int32
  		ProcessRecv(numOfBytes);
 		break;
 	case OverlappedBase::IOType::Send:
-		ProcessSend(static_cast<SendOverlapped*>(overlapped), numOfBytes);
+		ProcessSend(numOfBytes);
 		break;
 	default:
 		// TODO: Log Error
@@ -183,25 +197,43 @@ void Session::PostRecv()
 	}
 }
 
-void Session::PostSend(SendOverlapped* overlapped)
+void Session::PostSend()
 {
 	if (GetConnectionState() != ConnectionState::Connected)
-	{
-		CoreDelete(overlapped);
 		return;
+
+	_sendOverlapped.Init();
+	_sendOverlapped.owner = shared_from_this(); // IncRef this (to ensure it lives until the IO completes)
+
+	{
+		WRITE_LOCK;
+		while (!_sendQueue.empty())
+		{
+			SendBufferPtr sendBuffer = _sendQueue.front();
+
+			// TODO: Limit the number of buffers to send at once (to avoid too large WSABUF array)
+			// or limit the total size of data to send at once
+
+			_sendQueue.pop();
+			_sendOverlapped.sendBuffers.push_back(sendBuffer); // Keep a reference to the send buffer until the send is complete
+		}
 	}
 
-	overlapped->owner = shared_from_this(); // IncRef this (to ensure it lives until the IO completes)
-
-	WSABUF wsaBuf;
-	wsaBuf.buf = reinterpret_cast<CHAR*>(overlapped->buffer.data());
-	wsaBuf.len = static_cast<ULONG>(overlapped->buffer.size());
+	Vector<WSABUF> wsaBufs;
+	wsaBufs.reserve(_sendOverlapped.sendBuffers.size());
+	for (SendBufferPtr& sendBuffer : _sendOverlapped.sendBuffers)
+	{
+		WSABUF wsaBuf;
+		wsaBuf.buf = reinterpret_cast<CHAR*>(sendBuffer->GetBufferPtr());
+		wsaBuf.len = sendBuffer->GetDataSize();
+		wsaBufs.push_back(wsaBuf);
+	}
 
 	DWORD bytesSent = 0;
 	int32 result;
 	{
 		WRITE_LOCK;
-		result = ::WSASend(_socket, &wsaBuf, 1, &bytesSent, 0, overlapped, nullptr);
+		result = ::WSASend(_socket, wsaBufs.data(), wsaBufs.size(), &bytesSent, 0, &_sendOverlapped, nullptr);
 	}
 	if (result == SOCKET_ERROR)
 	{
@@ -209,8 +241,13 @@ void Session::PostSend(SendOverlapped* overlapped)
 		if (errorCode != WSA_IO_PENDING)
 		{
 			HandleError(errorCode);
-			overlapped->owner = nullptr; // DecRef this if error
-			CoreDelete(overlapped);
+			_sendOverlapped.owner = nullptr; // DecRef this if error
+			_sendOverlapped.sendBuffers.clear(); // Release all send buffers associated with this send operation
+
+			{
+				WRITE_LOCK;
+				_isSending = false;
+			}
 		}
 	}
 }
@@ -276,10 +313,10 @@ void Session::ProcessRecv(uint32 numOfBytes)
 	PostRecv();
 }
 
-void Session::ProcessSend(SendOverlapped* overlapped, uint32 numOfBytes)
+void Session::ProcessSend(uint32 numOfBytes)
 {
-	overlapped->owner = nullptr; // DecRef this as the IO is complete
-	CoreDelete(overlapped);
+	_sendOverlapped.owner = nullptr; // DecRef this as the IO is complete
+	_sendOverlapped.sendBuffers.clear(); // Release all send buffers associated with this send operation
 
 	if (numOfBytes == 0)
 	{
@@ -289,6 +326,24 @@ void Session::ProcessSend(SendOverlapped* overlapped, uint32 numOfBytes)
 
 	// Notify derived class
 	OnSend(numOfBytes);
+
+	bool needToPostSend = false;
+	{
+		WRITE_LOCK;
+		if (_sendQueue.empty())
+		{
+			_isSending = false;
+		}
+		else
+		{
+			needToPostSend = true;
+		}
+	}
+
+	if (needToPostSend)
+	{
+		PostSend();
+	}
 }
 
 void Session::HandleError(int32 errorCode)

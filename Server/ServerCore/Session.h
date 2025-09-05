@@ -25,7 +25,7 @@ public:
 	virtual ~Session();
 
 public:
-	void				Send(const BYTE* data, int32 length);
+	void				Send(SendBufferPtr sendBuffer);
 	bool				Connect(); // Use only in client sessions
 	void				Disconnect(const wchar_t* reason = nullptr);
 
@@ -46,12 +46,12 @@ private:
 	bool PostConnect(); // Use only in client sessions
 	bool PostDisconnect();
 	void PostRecv();
-	void PostSend(SendOverlapped* overlapped);
+	void PostSend();
 
 	void ProcessConnect();
 	void ProcessDisconnect();
 	void ProcessRecv(uint32 numOfBytes);
-	void ProcessSend(SendOverlapped* overlapped, uint32 numOfBytes);
+	void ProcessSend(uint32 numOfBytes);
 
 	void HandleError(int32 errorCode);
 
@@ -68,12 +68,18 @@ private:
 	Atomic<ConnectionState> _connectionState = { ConnectionState::Disconnected };
 	std::weak_ptr<Service>	_service;
 
+	/* Receive */
 	RecvBuffer				_recvBuffer = { RECV_BUFFER_SIZE };
+
+	/* Send */
+	Queue<SendBufferPtr>	_sendQueue;
+	bool					_isSending = false; // Lock Required
 
 private:
 	/* Reusable overlapped structures for async IO */
 	ConnectOverlapped		_connectOverlapped;
 	DisconnectOverlapped	_disconnectOverlapped;
 	RecvOverlapped			_recvOverlapped;
+	SendOverlapped			_sendOverlapped;
 };
 
