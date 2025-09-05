@@ -26,16 +26,20 @@ void* StompAllocator::Allocate(StompAllocator* allocator, size_t size)
 	}
 
 	size_t allocSize = ((size + allocator->_pageSize - 1) / allocator->_pageSize) * allocator->_pageSize;
+	// Allocate an extra page for guard
 	void* baseAddr = ::VirtualAlloc(nullptr, allocSize + allocator->_pageSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 	if (!baseAddr)
 	{
 		return nullptr;
 	}
 
-	DWORD oldProtect;
-	::VirtualProtect(static_cast<int8*>(baseAddr) + allocator->_pageSize, allocator->_pageSize, PAGE_NOACCESS, &oldProtect);
+	int8* endAddr = static_cast<int8*>(baseAddr) + allocSize;
 
-	return static_cast<int8*>(baseAddr) + (allocSize - size);
+	DWORD oldProtect;
+	// Set the extra page as no access
+	::VirtualProtect(endAddr, allocator->_pageSize, PAGE_NOACCESS, &oldProtect);
+
+	return endAddr - size;
 }
 
 void StompAllocator::Deallocate(StompAllocator* allocator, void* ptr)
